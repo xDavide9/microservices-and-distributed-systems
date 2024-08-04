@@ -11,6 +11,8 @@ services:
       POSTGRES_PASSWORD: password
       PGDATA: /data/postgres
     volumes:
+#     I want to back up the postgres data stored in the directory specified above in my local machine through the postgres
+#     named volume
       - postgres:/data/postgres
     ports:
       - "5432:5432"
@@ -32,10 +34,12 @@ services:
       - postgres
     restart: unless-stopped
 
+# this network is the url to input in pgadmin to connect to the database server where all the postgres databases are created
 networks:
   postgres:
     driver: bridge
 
+# these named volumes are managed by docker on my local machine to back up certain data of container
 volumes:
   postgres:
   pgadmin:
