@@ -33,6 +33,11 @@ services:
     networks:
       - postgres
     restart: unless-stopped
+  zipkin:
+    image: openzipkin/zipkin
+    container_name: zipkin
+    ports:
+      - "9411:9411"
 
 # this network is the url to input in pgadmin to connect to the database server where all the postgres databases are created
 networks:

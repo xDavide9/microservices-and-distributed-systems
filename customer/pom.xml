@@ -40,6 +40,24 @@
             <version>1.0-SNAPSHOT</version>
             <scope>compile</scope>
         </dependency>
+<!--        https://spring.io/blog/2016/02/15/distributed-tracing-with-spring-cloud-sleuth-and-spring-cloud-zipkin
+sleuth provides autoconfiguration for distributed tracing,
+it will add a traceID which never changes for the request
+and a spanID that changes depending on which service the
+request lands on. This information is added to every log
+and I can see it in the console because I added logging
+in every controller. This information can also be
+fed to software like zipkin that is also autoconfigured
+thanks to the spring-cloud-sleuth-zipkin dependency and
+just need to specify host in the properties-->
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-sleuth</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-sleuth-zipkin</artifactId>
+        </dependency>
     </dependencies>
 
 </project>
