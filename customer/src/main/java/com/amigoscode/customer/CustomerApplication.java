@@ -5,7 +5,13 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cloud.netflix.eureka.EnableEurekaClient;
 import org.springframework.cloud.openfeign.EnableFeignClients;
 
-@SpringBootApplication
+@SpringBootApplication(
+        scanBasePackages = {
+                "com.amigoscode.customer",
+                "com.amigoscode.amqp",
+        }
+)   // include amqp under scanBasePackages so that beans defined under
+// that package are registered to Customer Application Context
 @EnableEurekaClient
 @EnableFeignClients(
         basePackages = "com.amigoscode.clients"
