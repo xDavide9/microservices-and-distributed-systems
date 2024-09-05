@@ -10,12 +10,24 @@
     </parent>
 
     <artifactId>customer</artifactId>
-
-    <properties>
-        <maven.compiler.source>17</maven.compiler.source>
-        <maven.compiler.target>17</maven.compiler.target>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    </properties>
+    <packaging>jar</packaging>
+<!--    packaging as jar and need the spring boot maven plugin-->
+<!--    before packaging we need to make sure that every dependency is available in the local m2
+        maven repository otherwise the process will fail
+        1) for depedencies that you get online from maven central these are automatically installed in the
+        local m2 repository
+        2) for depedencies that you create yourself (like clients, amqp) these guys need to be manually
+        installed in the local m2 repository by running maven install
+        depedencies can then be published either on maven central or other repository hosting services like
+        Nexus or Artifactory to share with other developers-->
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+            </plugin>
+        </plugins>
+    </build>
 
     <dependencies>
         <dependency>

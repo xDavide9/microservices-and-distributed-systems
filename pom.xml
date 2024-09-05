@@ -6,9 +6,10 @@
 
   <groupId>com.amigoscode</groupId>
   <artifactId>amigosservices</artifactId>
-  <packaging>pom</packaging>
+  <packaging>pom</packaging> <!-->as this is a parent pom there is no packaging<-->
   <version>1.0-SNAPSHOT</version>
 
+<!--  all the submodules that inherit from this parent (depedency management, plugin management...)-->
   <modules>
     <module>customer</module>
     <module>fraud</module>
@@ -16,22 +17,24 @@
     <module>clients</module>
     <module>notification</module>
     <module>apigw</module>
-      <module>amqp</module>
+    <module>amqp</module> <!-->This module as well as clients is not an applicaton spring boot application its code can be imported in other microservices using maven dependencies <-->
   </modules>
 
   <name>amigosservices</name>
   <url>https://www.amigoscode.com</url>
 
   <properties>
+<!--    centralize version values under properties-->
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <maven.compiler.source>17</maven.compiler.source>
     <maven.compiler.target>17</maven.compiler.target>
     <spring.boot.maven.plugin.version>2.5.7</spring.boot.maven.plugin.version>
     <spring.boot.dependencies.version>2.5.7</spring.boot.dependencies.version>
+    <spring.cloud.dependencies.version>2020.0.3</spring.cloud.dependencies.version>
   </properties>
 
   <!--  using dependency management in parent pom so child pom can choose
-  whether to include the dependency without worrying about versions-->
+  whether to include the dependency without worrying about versions, not using the parent pom-->
   <dependencyManagement>
     <dependencies>
       <dependency>
@@ -46,7 +49,7 @@
       <dependency>
         <groupId>org.springframework.cloud</groupId>
         <artifactId>spring-cloud-dependencies</artifactId>
-        <version>2020.0.3</version>
+        <version>${spring.cloud.dependencies.version}</version>
         <scope>import</scope>
         <type>pom</type>
       </dependency>
@@ -72,20 +75,35 @@
 
   <build>
     <pluginManagement>
+<!--      plugin management makes it like depedency management so all the submodules that inherit from this
+          parent and decide to include these plugins will get the exact same configuration-->
       <plugins>
         <plugin>
           <groupId>org.springframework.boot</groupId>
           <artifactId>spring-boot-maven-plugin</artifactId>
           <version>${spring.boot.maven.plugin.version}</version>
+          <executions>
+<!--            adding the goal repackage to the execution allows to repackage a jar as a spring boot application
+                2 files will be generated a .jar.original without spring and a .jar with spring
+                note: this is usually added by default if you are using spring parent pom but since
+                in this project that's not the case it needs to included manually-->
+            <execution>
+              <goals>
+                <goal>repackage</goal>
+              </goals>
+            </execution>
+          </executions>
         </plugin>
       </plugins>
     </pluginManagement>
     <plugins>
       <plugin>
+<!--        this plugin allows to create a jar for each microservice-->
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-compiler-plugin</artifactId>
         <version>3.8.0</version>
         <configuration>
+<!--          always change these to your java version-->
           <source>${maven.compiler.source}</source>
           <target>${maven.compiler.target}</target>
         </configuration>

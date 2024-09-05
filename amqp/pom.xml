@@ -10,13 +10,10 @@
     </parent>
 
     <artifactId>amqp</artifactId>
+    <packaging>jar</packaging>  <!-- packaging the depedency as a jar -->
 
-    <properties>
-        <maven.compiler.source>17</maven.compiler.source>
-        <maven.compiler.target>17</maven.compiler.target>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    </properties>
-
+<!--    don't need the spring boot maven plugin from parent because this module
+        is not a spring boot application-->
     <dependencies>
         <dependency>
             <groupId>org.springframework.boot</groupId>
