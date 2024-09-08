@@ -38,16 +38,95 @@ services:
     container_name: zipkin
     ports:
       - "9411:9411"
+    networks:
+      - spring
   rabbitmq:
     image: rabbitmq:3.9.11-management-alpine
     container_name: rabbitmq
     ports:
       - "5672:5672"
       - "15672:15672"
+    networks:
+      - spring
+  eureka-server:  # these are containers that I run from my own images of microservices
+    # created using jib plugin, the spring applications need to run in the "docker" spring profile because
+    # in application-docker.yml they are configured to communicate to each other with networks while
+    # in application.yml they are configured to communicate to each other with localhost
+    image: xdavide9/eureka-server:latest
+    container_name: eureka-server
+    ports:
+      - "8761:8761"
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+    networks:
+      - spring
+    depends_on:
+      - zipkin
+  apigw:
+    image: xdavide9/apigw:latest
+    container_name: apigw
+    ports:
+      - "8083:8083"
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+    networks:
+      - spring
+    depends_on:
+      - zipkin
+      - eureka-server
+  customer:
+    image: xdavide9/customer:latest
+    container_name: customer
+    ports:
+      - "8080:8080"
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+    networks:
+      - spring
+      - postgres
+    depends_on:
+      - zipkin
+      - eureka-server
+      - postgres
+      - rabbitmq
+  fraud:
+    image: xdavide9/fraud:latest
+    container_name: fraud
+    ports:
+      - "8081:8081"
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+    networks:
+      - spring
+      - postgres
+    depends_on:
+      - zipkin
+      - eureka-server
+      - postgres
+      - rabbitmq
+  notification:
+    image: xdavide9/notification:latest
+    container_name: notification
+    ports:
+      - "8082:8082"
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+    networks:
+      - spring
+      - postgres
+    depends_on:
+      - zipkin
+      - eureka-server
+      - postgres
+      - rabbitmq
 
-# this network is the url to input in pgadmin to connect to the database server where all the postgres databases are created
+# networks allow communication between the containers they are added to
+# by just specifying their name as host
+# e.g. http://zipkin:9411 where zipkin is the name of the container and not of the network
 networks:
   postgres:
+    driver: bridge
+  spring:
     driver: bridge
 
 # these named volumes are managed by docker on my local machine to back up certain data of container

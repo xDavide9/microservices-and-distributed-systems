@@ -31,6 +31,7 @@
     <spring.boot.maven.plugin.version>2.5.7</spring.boot.maven.plugin.version>
     <spring.boot.dependencies.version>2.5.7</spring.boot.dependencies.version>
     <spring.cloud.dependencies.version>2020.0.3</spring.cloud.dependencies.version>
+    <image>xdavide9/${project.artifactId}:${project.version}</image>
   </properties>
 
   <!--  using dependency management in parent pom so child pom can choose
@@ -93,6 +94,44 @@
               </goals>
             </execution>
           </executions>
+        </plugin>
+        <plugin>
+<!--            this plugin allows to create a docker image instead of using a dockerfile
+                need to authenticate with docker login before and make sure the <image> property is configured
+                with your own docker username (to push the image to your account)-->
+            <groupId>com.google.cloud.tools</groupId>
+            <artifactId>jib-maven-plugin</artifactId>
+            <version>3.1.4</version>
+            <configuration>
+                <from>
+<!--                    using eclipse temurin jdk as base image-->
+                    <image>eclipse-temurin:17-jdk</image>
+                    <platforms>
+<!--                        supporting x86 (amd64) and arm (like apple M chips) (arm64)-->
+                        <platform>
+                            <architecture>amd64</architecture>
+                            <os>linux</os>
+                        </platform>
+                        <platform>
+                            <architecture>arm64</architecture>
+                            <os>linux</os>
+                        </platform>
+                    </platforms>
+                </from>
+                <to>
+                    <tags>
+                        <tag>latest</tag>
+                    </tags>
+                </to>
+            </configuration>
+            <executions>
+                <execution>
+                    <phase>package</phase>
+                    <goals>
+                        <goal>build</goal>
+                    </goals>
+                </execution>
+            </executions>
         </plugin>
       </plugins>
     </pluginManagement>
