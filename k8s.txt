@@ -1,0 +1,77 @@
+THEORY
+kubernetes aka k8s is a application orchestrator
+it provides benefits like scaling, load balancing, self-healing and much more
+a cluster is set of nodes where a node is a virtual machine
+(that can be run on the cloud with a provider like AWS, GCP, Azure) or physical machine (on premises)
+a cluster has a master node and some worker nodes
+1) the master node contains the control plane
+which contains the API server, scheduler, controller manager the cluster store (etcd) and the cloud controller manager
+analyse each container one by one:
+- the api server is the frontend of the control plane, all communication go through it be is external or internal,
+  it exposes a restful api on port 443 and performs authentication, authorization checks to access it
+- the cluster store contains all the state of the application and configuration of the application,
+  like a database for an application it is the single source of truth,
+  k8s uses etcd which is a distributed key value store
+- the scheduler watches for new workloads/pods and assigns them to the appropriate node based on several factors like
+  is the node healthy? is the port available? are there enough resources?
+- the controller manager is a daemon that manages the control loop, like a controller of controllers
+  in k8s there are a bunch of controllers like the node controller (e.g. the desired state is 1 node and the node dies,
+  the node controller will bring a new node to match the desired state), there are other controllers such as the replicaSet, endpoint,
+  namespace... each controller watches the api server for changes and ensures that the current state matches the desired state
+2) the worker node (which can be a virtual machine or a physical machine) contains the kubelet, kube-proxy and the container runtime
+- the kubelet is an agent that runs on each node in the cluster, it makes sure that the containers are running in a pod
+  reports node and pod state to the master and receives pod definitions from the api server, it also interacts with the container runtime
+- the container runtime is responsible of pulling the images from container registries like dockerhub, gcr, ecr, acr, running containers
+  and stopping them if necessary, k8s supports several container runtimes like docker, containerd, cri-o, rkt
+- the kube-proxy is an agent that runs on every node through daeamonSets and is responsible of communication between nodes
+  (where each node gets its own unique ip address) and routing requests to load balanced services
+
+RUNNING KUBERNETES
+running k8s yourself is hard so it's recommended to use a managed solution:
+in production most of the companies use managed solutions like GKE, EKS, AKS
+for example you could run eks (elastic kubernetes service) from aws via aws fargate (for serverless containers) or aws ec2
+where the entire master node is managed and you just focus on the worker nodes which basically consist of your application
+you can interact with k8s via the eks console in aws
+these solutions are expensive and for learning purposes you can learn k8s locally with minikube, kind or docker
+minikube is a tool that runs a single-node k8s cluster in a virtual machine on your local machine (in this case I'm using the docker engine)
+note: make sure enough resources are allocated both to the virtual engine and minikube itself
+minikube start --memory=4g
+minikube status
+minikube ip (of the single master node in the cluster we have)
+
+INTERACTING WITH THE SINGLE NODE CLUSTER
+you need kubectl (kubernetes command line tool) in order to interact with clusters and do any operation
+like deploying, inspecting, managing resources, debug, view logs...
+note: kubectl is the way to interact with a cluster whether it's running locally for learning purposes or in production with managed solutions like GKE, EKS, AKS
+
+RUNNING HELLO WORLD
+1) as a docker container: docker run --rm -p 80:80 amigoscode/kubernetes:hello-world
+(this will run a container with a hello world app with the docker engine, it's just there to show the difference with k8s)
+2) as a k8s pod: kubectl run hello-world --image=amigoscode/kubernetes:hello-world --port=80
+(this will run the same container but within a k8s pod running in our local k8s cluster thanks to minikube)
+NOTE: a single number is specified for the port and that's the container port
+pods are the smallest deployable unit in k8s, they are a group of one or more containers that communicate internally
+via localhost and their port number, there can be a main container, init containers, side containers and volumes
+if a pod wants to communicate with another pod they have to use their ip address
+NOTE: never create pods directly because they are ephemeral and disposable, always use controllers like deployments, replicaSet
+because they monitor the state of pods and ensure that the desired state matches the current state
+(e.g. kubectl create deployment hello-world --image=amigoscode/kubernetes:hello-world --port=80,
+and then set up replicaSet kubeclt scale deployment hello-world --replicas=3)
+but how to access the pod?
+in order to access the application deployed in the pod we can use different methods
+- port-forwarding which is just for testing or development purposes (do not do in production)
+  kubectl port-forward pod/hello-world 8080:80 (which maps the host (my mac) port 8080 to the container port 80, so the application is now
+  accessible at localhost:8080), this is not good for production because not only can the port change but also the pod's ip address when for example
+  a new version of the service is released so it's just not feasible
+- service (preferred way), it has a stable ip, port and dns name and there are different ones like: ClusterIP, NodePort, ExternalName, LoadBalanced
+  with this approach service Discovery is used, so we have a service registry where a service's ip address is registered and a human readable name is
+  associated and this is working thanks to a dns server like coreDNS
+
+
+
+
+
+
+
+
+

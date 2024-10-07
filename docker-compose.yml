@@ -122,7 +122,7 @@ services:
 
 # networks allow communication between the containers they are added to
 # by just specifying their name as host
-# e.g. http://zipkin:9411 where zipkin is the name of the container and not of the network
+# e.g. http://zipkin:9411 where zipkin is the name of the service (not the container, that one is just for displaying, anyways they can be named the same using container_name attribute) and not of the network
 networks:
   postgres:
     driver: bridge
