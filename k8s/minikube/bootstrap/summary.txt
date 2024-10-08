@@ -1,0 +1,38 @@
+POSTGRES
+we have a volume that is mounted against the local file system for persistent storage,
+ a volume claim which is simply a way to let pods use this volume,
+  a service which is a component responsible for routing traffic to the application serving as the entry point of requests,
+   and a statefulSet which is a controller responsible for managing the lifecycle of pods (they are ephemeral and disposable)
+    that guarantees that replica of the pod is running. how this pod is defined is given by the template specified in stateful set
+     and we tell it to use the service created earlier, the volume claim,
+      we define it should use the image Postgres and mount the volume in its specific directory,
+       specify resources and the selector to let the stateful set only match the pods with the correct label
+
+RABBITMQ see rabbitmq/README.md
+uses NodePort service
+only meant for internal communication
+
+ZIPKIN
+uses LoadBalancer service so we need
+minikube tunnel
+minikube service --url zipkin
+to expose it
+generally it makes no sense to use LoadBalancer in local development but this is just for demonstration purposes
+
+COMMANDS
+kubectl apply -f k8s/minikube/bootstrap/postgres/   (apply ynl manifest(s))
+kubectl get all  (inspect resources in k8s)
+kubectl get pods
+kubectl get pvc
+kubectl get pv
+kubectl get statefulsets
+kubectl get services
+kubectl describe pod postgres-0
+kubectl logs postgres-0  (get logs of a pod)
+minikube ssh  (ssh into minikube)
+kubectl exec -it postgres-0 -- psql -U postgres  (ssh into postgres running in k8s)
+CREATE DATABASE customer;
+CREATE DATABASE fraud;
+CREATE DATABASE notification;
+minikube service --url zipkin (temporary ip address)
+minikube service --url rabbitmq  (temporary ip address)

@@ -1,0 +1,40 @@
+apiVersion: apps/v1
+kind: StatefulSet  # we are using a stateful set instead of a deployment, replicaSet or daemonSet because we need to maintain state (stateful set)
+metadata:
+  name: postgres
+  labels:
+    app: postgres  # labels to identify the stateful set
+spec: # specifications
+  serviceName: postgres # the service defined in service.yml that accepts traffic for the pods
+  replicas: 1 # how many pods we want running
+  template: # defines the template used to create pods
+    metadata:
+      name: postgres
+      labels:
+        app: postgres # labels to identify the pod
+    spec:
+      volumes:
+        - name: postgres
+          persistentVolumeClaim:
+            claimName: postgres-pc-volume-claim  # use the volume claim created in volume.yml
+      containers:
+        - name: postgres  # name of the container to create
+          image: postgres  # the image to use
+          imagePullPolicy: IfNotPresent   # pull image if not present
+          volumeMounts:
+            - mountPath: "/var/lib/postgresql/data"  # where to mount the volume inside the container
+              name: postgres
+          envFrom:
+            - configMapRef:
+                name: postgres-config   # use the config map for environment variables
+          resources:  # specify how much resources the container should use
+            requests:
+              cpu: 100m
+              memory: 256Mi
+            limits:
+              cpu: 500m
+              memory: 512Mi
+      restartPolicy: Always # always restart the pod if it fails
+  selector:  # select the pods to manage
+    matchLabels:
+      app: postgres

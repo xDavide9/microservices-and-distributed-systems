@@ -1,10 +1,11 @@
 THEORY
 kubernetes aka k8s is a application orchestrator
 it provides benefits like scaling, load balancing, self-healing and much more
+it can consists of a single or more clusters
 a cluster is set of nodes where a node is a virtual machine
 (that can be run on the cloud with a provider like AWS, GCP, Azure) or physical machine (on premises)
-a cluster has a master node and some worker nodes
-1) the master node contains the control plane
+a cluster has a master node and one or more worker nodes
+1) the master node (which can be a virtual machine or a physical machine) contains the control plane
 which contains the API server, scheduler, controller manager the cluster store (etcd) and the cloud controller manager
 analyse each container one by one:
 - the api server is the frontend of the control plane, all communication go through it be is external or internal,
@@ -33,11 +34,11 @@ for example you could run eks (elastic kubernetes service) from aws via aws farg
 where the entire master node is managed and you just focus on the worker nodes which basically consist of your application
 you can interact with k8s via the eks console in aws
 these solutions are expensive and for learning purposes you can learn k8s locally with minikube, kind or docker
-minikube is a tool that runs a single-node k8s cluster in a virtual machine on your local machine (in this case I'm using the docker engine)
+minikube is a tool that runs a single-node k8s cluster (control plane and worker node in the same node) in a virtual machine on your local machine (in this case I'm using the docker engine)
 note: make sure enough resources are allocated both to the virtual engine and minikube itself
 minikube start --memory=4g
 minikube status
-minikube ip (of the single master node in the cluster we have)
+minikube ip (to get the ip address of the single-node in the cluster)
 
 INTERACTING WITH THE SINGLE NODE CLUSTER
 you need kubectl (kubernetes command line tool) in order to interact with clusters and do any operation
@@ -53,19 +54,28 @@ NOTE: a single number is specified for the port and that's the container port
 pods are the smallest deployable unit in k8s, they are a group of one or more containers that communicate internally
 via localhost and their port number, there can be a main container, init containers, side containers and volumes
 if a pod wants to communicate with another pod they have to use their ip address
-NOTE: never create pods directly because they are ephemeral and disposable, always use controllers like deployments, replicaSet
+NOTE: never create pods directly because they are ephemeral and disposable, always use controllers like deployments
+more on controllers: https://semaphoreci.com/blog/replicaset-statefulset-daemonset-deployments
+1) deployments are the best way to manage pods, they implement a replicaSet for scaling, rolling updates to ensure the application
+is updated one replica at a time, rollbacks to a previous version if something goes wrong, they are self-healing and much more
+2) replicaSets are used just for scaling and are generally less powerful than deployments
+3) statefulSets are used for stateful applications like databases, they are used when you need to persist data, note that you should use a managed solution for database in production
+4) daemonSets are used to run a single copy of a pod per node, so are good for background tasks or monitoring and so on
 because they monitor the state of pods and ensure that the desired state matches the current state
-(e.g. kubectl create deployment hello-world --image=amigoscode/kubernetes:hello-world --port=80,
-and then set up replicaSet kubeclt scale deployment hello-world --replicas=3)
 but how to access the pod?
 in order to access the application deployed in the pod we can use different methods
 - port-forwarding which is just for testing or development purposes (do not do in production)
   kubectl port-forward pod/hello-world 8080:80 (which maps the host (my mac) port 8080 to the container port 80, so the application is now
   accessible at localhost:8080), this is not good for production because not only can the port change but also the pod's ip address when for example
   a new version of the service is released so it's just not feasible
-- service (preferred way), it has a stable ip, port and dns name and there are different ones like: ClusterIP, NodePort, ExternalName, LoadBalanced
+- service (preferred way), it has a stable ip, port and dns name and there are different ones like: ClusterIP, NodePort, ExternalName, LoadBalancer
   with this approach service Discovery is used, so we have a service registry where a service's ip address is registered and a human readable name is
   associated and this is working thanks to a dns server like coreDNS
+    - ClusterIP is the default service type, it exposes the service on a cluster-internal ip, it's only reachable from within the cluster
+    - NodePort is the most basic way to get external traffic directly to your service, it opens a specific port on all nodes and any traffic that is sent to this port is forwarded to the service
+    - LoadBalancer is a service that exposes the service externally using a cloud provider's load balancer, it creates a load balancer in the cloud provider and forwards all traffic to the service
+    - ExternalName is a service that maps a service to a dns name, it's useful when you want to map a service to a dns name that is outside of the cluster
+
 
 
 

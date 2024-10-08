@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: postgres
+spec:
+  selector:
+    app: postgres   # traffic will be routed to pods with the label app: postgres
+  ports:
+    - port: 5432  # the port that the service listens on
+      targetPort: 5432  # the port where traffic should be routed in the receiving pod
+  type: ClusterIP # just use default type of service ClusterIP
