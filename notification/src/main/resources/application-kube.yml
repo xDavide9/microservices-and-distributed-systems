@@ -26,7 +26,7 @@ spring:
 #    fetch-registry: true
 #    register-with-eureka: true
 #    enabled: false
-#    these are not actual properties but values injected with @Value
+
 rabbitmq:
   exchanges:
     internal: internal.exchange

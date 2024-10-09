@@ -2,6 +2,8 @@
 #  volumes, ports, and networks for them. The image describes what the container is actually doing (e.g. running a
 #  postgres server), environment is specific configuration, volumes allow to back up data in case of container destruction
 #  networks allow seamless communication between containers
+
+# pro tip: run docker commands with docker compose: e.g. docker compose pull, docker compose up, docker compose down...
 services:
   postgres:
     container_name: postgres
@@ -48,32 +50,32 @@ services:
       - "15672:15672"
     networks:
       - spring
-  eureka-server:  # these are containers that I run from my own images of microservices
-    # created using jib plugin, the spring applications need to run in the "docker" spring profile because
-    # in application-docker.yml they are configured to communicate to each other with networks while
-    # in application.yml they are configured to communicate to each other with localhost
-    image: xdavide9/eureka-server:latest
-    container_name: eureka-server
-    ports:
-      - "8761:8761"
-    environment:
-      - SPRING_PROFILES_ACTIVE=docker
-    networks:
-      - spring
-    depends_on:
-      - zipkin
-  apigw:
-    image: xdavide9/apigw:latest
-    container_name: apigw
-    ports:
-      - "8083:8083"
-    environment:
-      - SPRING_PROFILES_ACTIVE=docker
-    networks:
-      - spring
-    depends_on:
-      - zipkin
-      - eureka-server
+#  eureka-server:  # these are containers that I run from my own images of microservices
+#    # created using jib plugin, the spring applications need to run in the "docker" spring profile because
+#    # in application-docker.yml they are configured to communicate to each other with networks while
+#    # in application.yml they are configured to communicate to each other with localhost
+#    image: xdavide9/eureka-server:latest
+#    container_name: eureka-server
+#    ports:
+#      - "8761:8761"
+#    environment:
+#      - SPRING_PROFILES_ACTIVE=docker
+#    networks:
+#      - spring
+#    depends_on:
+#      - zipkin
+#  apigw:
+#    image: xdavide9/apigw:latest
+#    container_name: apigw
+#    ports:
+#      - "8083:8083"
+#    environment:
+#      - SPRING_PROFILES_ACTIVE=docker
+#    networks:
+#      - spring
+#    depends_on:
+#      - zipkin
+#      - eureka-server
   customer:
     image: xdavide9/customer:latest
     container_name: customer
@@ -86,7 +88,7 @@ services:
       - postgres
     depends_on:
       - zipkin
-      - eureka-server
+#      - eureka-server
       - postgres
       - rabbitmq
   fraud:
@@ -101,7 +103,7 @@ services:
       - postgres
     depends_on:
       - zipkin
-      - eureka-server
+#      - eureka-server
       - postgres
       - rabbitmq
   notification:
@@ -116,7 +118,7 @@ services:
       - postgres
     depends_on:
       - zipkin
-      - eureka-server
+#      - eureka-server
       - postgres
       - rabbitmq
 
