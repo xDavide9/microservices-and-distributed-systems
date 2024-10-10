@@ -1,0 +1,27 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: customer
+  labels:
+    app: customer
+spec:
+  replicas: 1  # watch out for spring data jpa ddl-auto=create-drop
+  template:
+    metadata:
+      name: customer
+      labels:
+        app: customer
+    spec:
+      containers:
+        - name: customer
+          image: xdavide9/customer:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8080
+          env:
+            - name: SPRING_PROFILES_ACTIVE
+              value: kube   # specify kube profile for internal communication
+      restartPolicy: Always
+  selector:
+    matchLabels:
+      app: customer

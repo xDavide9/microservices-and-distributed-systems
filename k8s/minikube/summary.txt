@@ -36,3 +36,21 @@ CREATE DATABASE fraud;
 CREATE DATABASE notification;
 minikube service --url zipkin (temporary ip address)
 minikube service --url rabbitmq  (temporary ip address)
+
+kubectl scale --replicas=0 deployment/customer (scale down customer to fix database in case of more replicas that use create-drop ddl)
+don't really trust kubectl get pods where it says RUNNING it takes some time to startup
+
+IMPORTANT (HOW TO TEST THINGS)
+node type NodePort means we can use kubernetes service-discovery to make our microservices communicate easily with each other
+we can use the service name as the hostname in the url, node type LoadBalancer it's generally something we want to hit from the outside world
+(e.g. customer, zipkin) so we need to expose it to the outside world with minikube tunnel
+after deploy TEST WITH:
+minikube tunnel
+POST request at localhost/api/v1/customers  (default port is 80 which is the one exposed)
+zipkin available on localhost:9411
+
+if you make a mistake and need to reconfigure things: kubectl delete -f ./postgres
+(will remove all resources associated with manifests in postgres directory for example)
+
+if connection to a db fails you can create appropriate users with permissions to connect to the db
+(world of database administration)

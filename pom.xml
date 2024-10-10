@@ -120,7 +120,7 @@
                 </from>
                 <to>
                     <tags>
-                        <tag>latest</tag>
+                        <tag>latest</tag>   <!--> technically should use different tags otherwise you always override latest image<-->
                     </tags>
                 </to>
             </configuration>
