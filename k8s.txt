@@ -76,6 +76,16 @@ in order to access the application deployed in the pod we can use different meth
     - LoadBalancer is a service that exposes the service externally using a cloud provider's load balancer, it creates a load balancer in the cloud provider and forwards all traffic to the service
     - ExternalName is a service that maps a service to a dns name, it's useful when you want to map a service to a dns name that is outside of the cluster
 
+k8s resources live within a name space (default if not specified), a namespace is a way to divide cluster resources between multiple users
+you can use commands like kubectl get pods --namespace=kube-system
+kubectl create namespace my-namespace
+kubectl set context --current --namespace=my-namespace
+kubectl get namespaces
+
+Linode is a great and cheap cloud provider to run k8s in production in alternative to the expensive aws, gcp, azure
+in order to connect to the cluster with kubectl you need to set the environment variable KUBECONFIG with the path
+of the kubeconfig file given to you when you create the cluster
+
 
 
 
